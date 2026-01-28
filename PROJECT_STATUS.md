@@ -76,30 +76,66 @@
   - Removed prompt building
   - Removed brain executor orchestration
 - [x] Updated `demo/realtime_demo.py`:
-  - Removed all brain/ imports
-  - Simplified to pure sign language recognition
-  - Kept fusion model inference
-  - Kept grammar/emotion tag classification
-  - Added simple text overlay for predicted words
+   - Removed all brain/ imports
+   - Simplified to pure sign language recognition
+   - Kept fusion model inference
+   - Kept grammar/emotion tag classification
+   - Added simple text overlay for predicted words
 - [x] Deleted `docs/brain_phase*.md` documentation
 - [x] Deleted `tests/test_smoke.py` (brain test file)
 - [x] Updated `.env.example`:
-  - Removed all WandB/Brain/Gemini configuration
-  - Simplified to basic model parameters
+   - Removed all WandB/Brain/Gemini configs
+   - Simplified to basic model parameters
 - [x] Updated `requirements.txt`:
-  - Removed `google-genai` dependency
-  - Kept all ML/CV dependencies
+   - Removed `google-genai` dependency
+   - Kept all ML/CV dependencies
 - [x] Updated documentation (README.md, benchmarks README)
 
-### 8. Benchmark Documentation
-- [x] Created `Data/benchmarks/README.md`
-- [x] Documented benchmark folder structure:
-  - comparison/ - Baseline model metrics
-  - comparison_model/ - SPOTER model metrics
-  - new_model/ - Multimodal fusion model metrics
-- [x] Explained metrics to store (accuracy, precision, recall, F1, confusion matrices)
-- [x] Currently empty - will be populated after evaluation
-- [x] Added note on RAG/LLM removal
+### 8. WandB Integration
+
+- [x] Added `wandb>=0.24.0` to `pyproject.toml`
+- [x] Added `wandb` to `requirements.txt`
+- [x] Created shared `utils/wandb_utils.py` module:
+  - `init_wandb()` - Initialize WandB runs
+  - `log_confusion_matrix()` - Log confusion matrices as artifacts
+  - `log_metrics()` - Log standard metrics
+  - `log_classification_report()` - Log per-class metrics
+  - `save_checkpoint()` - Save model checkpoints
+  - `log_model_summary()` - Log architecture parameters
+- [x] Created `utils/__init__.py` package initialization
+- [x] Updated `.env.example` with WandB configuration:
+  ```bash
+  WANDB_PROJECT=BB3lAowfaCGkIlsby
+  WANDB_ENTITY=wandb_v1
+  WANDB_API_KEY=your_wandb_api_key_here
+  ```
+- [x] Updated `comparison model/BDSLW_SPOTER/train.py` with WandB tracking:
+  - Initialize WandB run with experiment name: `spoter_v1`
+  - Log training/validation loss and accuracy per epoch
+  - Log confusion matrices as artifacts
+  - Save model checkpoints (epoch-wise, best, final)
+- [x] Updated `train/train_fusion.py` with WandB tracking:
+  - Initialize WandB run with experiment name: `fusion_v2`
+  - Log dual task metrics (sign recognition + grammar/emotion)
+  - Log confusion matrices for both tasks
+  - Save model checkpoints (epoch-wise, best, final)
+  - Track learning rate schedule
+- [x] Updated `README.md` with:
+  - WandB setup instructions
+  - Training command examples for both models
+  - Links to WandB dashboard
+  - Demo usage instructions
+- [x] Updated `PROJECT_STATUS.md` with WandB integration notes
+
+**WandB Configuration:**
+- Project: `BB3lAowfaCGkIlsby`
+- Entity: `wandb_v1`
+- Experiment names: `spoter_v1` and `fusion_v2`
+- Both models use same project for easy comparison
+- Confusion matrices logged as images and CSV artifacts
+- Model checkpoints saved (all epochs + best + final)
+- Fusion model tracks both sign and grammar tasks
+- View results at: https://wandb.ai/wandb_v1/BB3lAowfaCGkIlsby
 
 ---
 
