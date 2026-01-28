@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from train.vocab import Vocabulary, build_vocab_from_manifest
+from train.vocab import Vocabulary, build_vocab_from_manifest, build_vocab_from_samples
 
 
 @dataclass
@@ -66,9 +66,7 @@ class BdSLDataset(Dataset):
         self.transform = transform
         self.samples = self._load_manifest()
         self.vocab = (
-            vocab
-            if vocab is not None
-            else build_vocab_from_manifest(self.manifest_path)
+            vocab if vocab is not None else build_vocab_from_samples(self.samples)
         )
         self.label_to_idx = self.vocab.label_to_idx
         self.grammar_to_idx = {

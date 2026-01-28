@@ -1,4 +1,5 @@
 """Vocabulary utilities to keep label indices consistent across splits."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -31,3 +32,18 @@ def build_vocab_from_manifest(manifest_path: Path) -> Vocabulary:
     label_to_idx = {word: idx for idx, word in enumerate(idx_to_label)}
     return Vocabulary(label_to_idx=label_to_idx, idx_to_label=idx_to_label)
 
+
+def build_vocab_from_samples(samples: List) -> Vocabulary:
+    """Build vocabulary from a list of sample dictionaries or SampleMetadata objects."""
+    words = set()
+    for sample in samples:
+        # Handle both dict and SampleMetadata objects
+        if hasattr(sample, "__annotations__"):
+            # It's a SampleMetadata dataclass - use .word attribute
+            if hasattr(sample, "word"):
+                words.add(sample.word)
+        elif isinstance(sample, dict) and "word" in sample:
+            words.add(sample["word"])
+    idx_to_label = sorted(words)
+    label_to_idx = {word: idx for idx, word in enumerate(idx_to_label)}
+    return Vocabulary(label_to_idx=label_to_idx, idx_to_label=idx_to_label)
