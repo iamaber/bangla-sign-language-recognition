@@ -1,4 +1,5 @@
 """Dataset and dataloader utilities for BdSL landmarks."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -54,7 +55,8 @@ class BdSLDataset(Dataset):
         landmarks_dir: Path,
         signer_splits: SignerSplits,
         split: str,
-        transform: Callable[[Dict[str, np.ndarray]], Dict[str, np.ndarray]] | None = None,
+        transform: Callable[[Dict[str, np.ndarray]], Dict[str, np.ndarray]]
+        | None = None,
         vocab: Vocabulary | None = None,
     ) -> None:
         self.manifest_path = manifest_path
@@ -63,9 +65,19 @@ class BdSLDataset(Dataset):
         self.split = split
         self.transform = transform
         self.samples = self._load_manifest()
-        self.vocab = vocab if vocab is not None else build_vocab_from_manifest(self.manifest_path)
+        self.vocab = (
+            vocab
+            if vocab is not None
+            else build_vocab_from_manifest(self.manifest_path)
+        )
         self.label_to_idx = self.vocab.label_to_idx
-        self.grammar_to_idx = {"neutral": 0, "question": 1, "negation": 2, "happy": 3, "sad": 4}
+        self.grammar_to_idx = {
+            "neutral": 0,
+            "question": 1,
+            "negation": 2,
+            "happy": 3,
+            "sad": 4,
+        }
 
     def _load_manifest(self) -> List[SampleMetadata]:
         rows: List[SampleMetadata] = []
@@ -73,7 +85,9 @@ class BdSLDataset(Dataset):
         with self.manifest_path.open("r", encoding="utf-8") as f:
             header = next(f)
             for line in f:
-                filepath, word, signer_id, session, rep, grammar, *_ = line.strip().split(",")
+                filepath, word, signer_id, session, rep, grammar, *_ = (
+                    line.strip().split(",")
+                )
                 if signer_id in allowed_signers:
                     rows.append(
                         SampleMetadata(
@@ -90,7 +104,7 @@ class BdSLDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         meta = self.samples[idx]
-        npz_path = self.landmarks_dir / (meta.filepath.stem + ".npz")
+        npz_path = self.landmarks_dir / meta.word / (meta.filepath.stem + ".npz")
         arrays = dict(np.load(npz_path))
         if self.transform:
             arrays = self.transform(arrays)
@@ -100,6 +114,8 @@ class BdSLDataset(Dataset):
             "face": torch.from_numpy(arrays["face"]).float(),
             "pose": torch.from_numpy(arrays["pose"]).float(),
             "sign_label": torch.tensor(self.label_to_idx[meta.word], dtype=torch.long),
-            "grammar_label": torch.tensor(self.grammar_to_idx[meta.grammar], dtype=torch.long),
+            "grammar_label": torch.tensor(
+                self.grammar_to_idx[meta.grammar], dtype=torch.long
+            ),
         }
         return sample
