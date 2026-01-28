@@ -8,12 +8,12 @@ This is a **Bengali Sign Language (BdSL) recognition system** using a **transfor
 
 ```mermaid
 graph TB
-    A[Input Video] --> B[MediaPipe Pose Extraction]
-    B --> C[108D Pose Features (54 landmarks x 2 coords)]
-    C --> D[BdSL-Specific Normalization]
-    D --> E[SPOTER Transformer]
-    E --> F[Classification Head]
-    F --> G[60 BdSL Word Classes]
+    A["Input Video"] --> B["MediaPipe Pose Extraction"]
+    B --> C["108D Pose Features (54 landmarks x 2 coords)"]
+    C --> D["BdSL-Specific Normalization"]
+    D --> E["SPOTER Transformer"]
+    E --> F["Classification Head"]
+    F --> G["60 BdSL Word Classes"]
     
     style E fill:#e1f5ff
     style G fill:#90EE90
