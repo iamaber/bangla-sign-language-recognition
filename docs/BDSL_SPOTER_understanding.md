@@ -9,7 +9,7 @@ This is a **Bengali Sign Language (BdSL) recognition system** using a **transfor
 ```mermaid
 graph TB
     A[Input Video] --> B[MediaPipe Pose Extraction]
-    B --> C[108D Pose Features<br/>(54 landmarks × 2 coords)]
+    B --> C[108D Pose Features<br/>(54 landmarks x 2 coords)]
     C --> D[BdSL-Specific Normalization]
     D --> E[SPOTER Transformer]
     E --> F[Classification Head]
