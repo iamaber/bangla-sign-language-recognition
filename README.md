@@ -4,9 +4,7 @@ This project implements Bangla Sign Language (BdSL) recognition systems using co
 
 ## Project Structure
 
-- `comparison model/BDSLW_SPOTER/` - Baseline SPOTER model for sign language recognition
-- `new model/Emotion-Integrated-Sign-Interpretation-model/` - Novel approach integrating emotion recognition
-- `main.py` - Main entry point
+- `new model/Emotion-Integrated-Sign-Interpretation-model/` - Multimodal fusion model with emotion recognition
 
 ## Getting Started
 
@@ -15,6 +13,8 @@ This project implements Bangla Sign Language (BdSL) recognition systems using co
 - Python 3.12+
 - UV package manager
 - CUDA-capable GPU (optional but recommended)
+- WandB account (for experiment tracking)
+- WandB API key (from https://wandb.ai/settings)
 
 ### Installation
 
@@ -22,6 +22,30 @@ This project implements Bangla Sign Language (BdSL) recognition systems using co
 uv sync
 source .venv/bin/activate
 ```
+
+### Configuration
+
+1. Get your WandB entity name from your profile
+2. Add WandB configuration to `.env`:
+
+```bash
+# Copy example file
+cp .env.example .env
+
+# Edit .env with your credentials
+vim .env
+```
+
+Configure with:
+- `WANDB_PROJECT`: Project name (default: `BB3lAowfaCGkIlsby`)
+- `WANDB_ENTITY`: Your WandB entity name (default: `wandb_v1`)
+- `WANDB_API_KEY`: Your API key from WandB settings
+
+## Usage
+
+### WandB Tracking
+
+This project uses Weights & Biases (WandB) to track training runs and compare model performance.
 
 ## Project Status
 
@@ -45,7 +69,15 @@ source .venv/bin/activate
 **Code Updates:**
 - Fixed dataset to load npz from correct path structure
 - Added `build_vocab_from_samples()` for dynamic vocabulary
+- Removed RAG/LLM/AI tutor functionality
+- Simplified demo to pure sign language recognition
 - Updated project with benchmark documentation
+
+**RAG/LLM Removal:**
+- ✅ Removed entire `brain/` directory (RAG, LLM, AI tutor)
+- ✅ Updated demo to remove brain/ imports
+- ✅ Cleaned up `.env.example` (no LLM configs)
+- ✅ Updated `requirements.txt` (removed google-genai)
 
 ### 📂 Dataset Structure
 
@@ -62,7 +94,7 @@ Data/
     └── benchmarks/         # Metrics documentation
 ```
 
-### ⚠️ Known Issues
+### ⚠️  Known Issues
 
 **MediaPipe API Version:**
 - **Issue:** Code uses old API (`mp.solutions.holistic`)
@@ -77,6 +109,29 @@ Data/
 - **Fix:** Run landmark extraction from videos before production training
 
 ## Usage
+
+### Tracking Experiments with WandB
+
+This project uses Weights & Biases (WandB) for comprehensive experiment tracking.
+
+**Setup:**
+1. Create WandB account at https://wandb.ai
+2. Get your entity name and API key
+3. Configure `.env` file with credentials
+
+**WandB Configuration:**
+```bash
+# Copy example file
+cp .env.example .env
+
+# Edit with your credentials
+vim .env
+
+# Set these values:
+WANDB_PROJECT=BB3lAowfaCGkIlsby
+WANDB_ENTITY=your_wandb_username
+WANDB_API_KEY=your_wandb_api_key_here
+```
 
 ### Data Processing
 
@@ -113,7 +168,73 @@ PYTHONPATH=. python3 train/train_fusion.py \
 
 **Note:** For production training, first extract real landmarks from videos.
 
+### Training with WandB
+
+**Train SPOTER v1 (Baseline):**
+```bash
+cd "comparison model/BDSLW_SPOTER"
+source ../../.venv/bin/activate
+
+python train.py \
+  train_data.npz val_data.npz \
+  --epochs 40 \
+  --batch-size 64 \
+  --lr 3e-4 \
+  --device cuda \
+  --run-name spoter_v1 \
+  --wandb-project BB3lAowfaCGkIlsby \
+  --wandb-entity wandb_v1
+```
+
+**Train Fusion v2 (Multimodal):**
+```bash
+cd "new model/Emotion-Integrated-Sign-Interpretation-model"
+source ../../.venv/bin/activate
+
+PYTHONPATH=. python3 train/train_fusion.py \
+  ../../Data/processed/manifest.csv \
+  ../../Data/processed/landmarks \
+  --epochs 40 \
+  --batch-size 64 \
+  --lr 3e-4 \
+  --device cuda \
+  --train-signers S01 S02 S05 \
+  --val-signers S02 \
+  --test-signers S05 \
+  --run-name fusion_v2 \
+  --wandb-project BB3lAowfaCGkIlsby \
+  --wandb-entity wandb_v1
+```
+
+**Training without WandB (for testing):**
+```bash
+cd "new model/Emotion-Integrated-Sign-Interpretation-model"
+source ../../.venv/bin/activate
+
+PYTHONPATH=. python3 train/train_fusion.py \
+  ../../Data/processed/manifest.csv \
+  ../../Data/processed/landmarks \
+  --epochs 40 \
+  --batch-size 64 \
+  --lr 3e-4 \
+  --device cuda \
+  --train-signers S01 S02 S05 \
+  --val-signers S02 \
+  --test-signers S05 \
+  --no-wandb
+```
+
+**WandB Features:**
+- Experiments named: `spoter_v1` and `fusion_v2`
+- Tracks: loss, accuracy, learning rate
+- Confusion matrices logged (as images and CSV artifacts)
+- Model checkpoints saved (all epochs + best + final)
+- Both sign and grammar tasks tracked (for fusion model)
+- View results at: https://wandb.ai/wandb_v1/BB3lAowfaCGkIlsby
+
 ### Run Demo
+
+**Real-time recognition with webcam:**
 
 **Real-time recognition with webcam:**
 ```bash
@@ -130,6 +251,17 @@ PYTHONPATH=. python3 demo/realtime_demo.py \
   --font-path demo/kalpurush.ttf
 ```
 
+**Demo Controls:**
+- Press `c` - Clear sentence buffer
+- Press `q` or ESC - Quit demo
+
+**Demo Displays:**
+- Predicted word from sign language
+- Grammar tag (neutral/question/negation/happy/sad)
+- Confidence score
+- Current sentence buffer
+- FPS counter
+
 ### Benchmark Evaluation
 
 See `Data/benchmarks/README.md` for benchmark folder structure and metrics to track.
@@ -142,8 +274,16 @@ See `Data/benchmarks/README.md` for benchmark folder structure and metrics to tr
 4. `Data/processed/manifest.csv` - Created with all 833 samples
 5. `Data/processed/landmarks/` - Created 833 landmark files (test data)
 6. `Data/processed/splits/` - Created train/val/test split files
-7. `Data/benchmarks/README.md` - Added benchmark documentation
-8. `PROJECT_STATUS.md` - Created complete status report
+7. `Data/benchmarks/README.md` - Benchmark folder documentation
+8. `PROJECT_STATUS.md` - Complete status report with known issues
+9. `demo/realtime_demo.py` - Simplified demo (removed brain/ integration)
+10. `.env.example` - Cleaned environment configuration
+11. `requirements.txt` - Removed google-genai dependency
+12. `brain/` - Deleted entire RAG/LLM directory
+13. `utils/wandb_utils.py` - Created shared WandB utilities
+14. `utils/__init__.py` - Package initialization for utils
+15. `comparison model/BDSLW_SPOTER/train.py` - SPOTER training with WandB
+16. `train/train_fusion.py` - Fusion training with WandB
 
 ## Next Steps for Production
 
