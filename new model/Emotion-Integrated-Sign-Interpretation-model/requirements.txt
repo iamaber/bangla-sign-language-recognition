@@ -1,0 +1,15 @@
+numpy
+pandas
+opencv-python
+mediapipe
+torch
+torchvision
+torchaudio
+tqdm
+scikit-learn
+matplotlib
+seaborn
+
+google-genai
+Pillow
+pytest
