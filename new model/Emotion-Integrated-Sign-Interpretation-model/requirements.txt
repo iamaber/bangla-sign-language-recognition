@@ -10,6 +10,5 @@ scikit-learn
 matplotlib
 seaborn
 
-google-genai
 Pillow
 pytest
