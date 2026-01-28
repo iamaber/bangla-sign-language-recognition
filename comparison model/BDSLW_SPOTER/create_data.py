@@ -25,13 +25,13 @@ val_data = torch.randn(num_val_samples, seq_len, pose_dim)
 val_labels = torch.randint(0, num_classes, (num_val_samples,))
 
 # Save as .npz files
-train_path = os.path.join(data_dir, "train_data.npz")
-val_path = os.path.join(data_dir, "val_data.npz")
+train_path = data_dir / "train_data.npz"
+val_path = data_dir / "val_data.npz"
 
-torch.savez(train_path, x=train_data, y=train_labels)
-torch.savez(val_path, x=val_data, y=val_labels)
+np.savez(train_path, x=train_data.numpy(), y=train_labels.numpy())
+np.savez(val_path, x=val_data.numpy(), y=val_labels.numpy())
 
-print(f"✅ Created training data:")
+print("✅ Created training data:")
 print(f"  Train: {train_data.shape}")
 print(f"  Val: {val_data.shape}")
 print(f"  Classes: {num_classes}")

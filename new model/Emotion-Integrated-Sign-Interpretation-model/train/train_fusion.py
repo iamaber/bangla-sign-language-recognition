@@ -1,5 +1,3 @@
-"""Training script for multimodal fusion BdSL model with WandB integration."""
-
 from __future__ import annotations
 
 import argparse
@@ -15,7 +13,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 import wandb
 
-from models.fusion import FusionModel
+from models import fusion as fusion_module
 from train.dataset import BdSLDataset, SignerSplits
 import sys
 
@@ -24,9 +22,10 @@ from wandb_utils import (
     init_wandb,
     log_confusion_matrix,
     log_metrics,
+    log_classification_report,
     save_checkpoint,
     log_model_summary,
-    GRAMAR_IDX_TO_TAG,
+    GRAMMAR_IDX_TO_TAG,
 )
 
 
@@ -126,6 +125,8 @@ def train():
     criterion = nn.CrossEntropyLoss()
 
     best_val_acc = 0.0
+    all_pred_sign = []
+    all_pred_grammar = []
 
     for epoch in range(args.epochs):
         model.train()
@@ -163,24 +164,8 @@ def train():
                     "val_loss": val_loss,
                     "val_accuracy": val_acc,
                     "learning_rate": optimizer.param_groups[0]["lr"],
-                    "sign_task_loss": total_loss
-                    / len(loader_train.dataset),  # Approximate
-                    "grammar_task_loss": 0.0,  # Not separately tracked
                 }
             )
-
-            log_confusion_matrix(
-                y_true,
-                y_pred[0],
-                class_names=train_dataset.vocab.idx_to_label,
-                step=epoch + 1,
-                tag="sign",
-            )
-            log_confusion_matrix(
-                y_true, y_pred[1], GRAMAR_IDX_TO_TAG, step=epoch + 1, tag="grammar"
-            )
-
-            save_checkpoint(model, f"fusion_v2_epoch_{epoch + 1}")
 
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
