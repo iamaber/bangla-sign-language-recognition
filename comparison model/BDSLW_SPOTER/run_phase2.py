@@ -1,18 +1,18 @@
 import sys
-import os
 from pathlib import Path
 
 # Add src to path
-sys.path.append('src')
+sys.path.append("src")
+
 
 def main():
-    print("="*50)
+    print("=" * 50)
     print("BdSLW60 SPOTER Research Pipeline")
-    print("Phase 2: Dataset Analysis & Preprocessing")  
-    print("="*50)
+    print("Phase 2: Dataset Analysis & Preprocessing")
+    print("=" * 50)
 
     # Check if we're in the right directory
-    if not Path('src').exists():
+    if not Path("src").exists():
         print("Error: Please run this script from the project root directory")
         print("Expected structure:")
         print("  bdsl_spoter_research/")
@@ -41,13 +41,13 @@ def main():
 
     choice = input("Enter choice (1-3): ").strip()
 
-    if choice == '1':
+    if choice == "1":
         print("\nRunning quick test...")
         success = pipeline.run_quick_test()
-    elif choice == '2':
+    elif choice == "2":
         print("\nRunning full pipeline...")
         success = pipeline.run_complete_pipeline()
-    elif choice == '3':
+    elif choice == "3":
         print("\nRunning dataset analysis...")
         analyzer = BdSLW60Analyzer("data")
         analyzer.analyze_dataset_structure()
@@ -66,6 +66,7 @@ def main():
     else:
         print("\n✗ Phase 2 encountered errors")
         print("Please check the error messages above")
+
 
 if __name__ == "__main__":
     main()
