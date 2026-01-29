@@ -490,7 +490,7 @@ class SignLanguageDataset(Dataset):
 
     def _load_raw_pose(
         self, metadata: Dict
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
         """
         Load raw pose data from .npz file.
 
@@ -498,6 +498,7 @@ class SignLanguageDataset(Dataset):
             body_pose: (seq_len, 33, 3)
             left_hand: (seq_len, 21, 3) or None
             right_hand: (seq_len, 21, 3) or None
+            face: (seq_len, 468, 3) or None
             raw_length: Original sequence length
         """
         npz_path = self._get_npz_path(metadata)
@@ -506,11 +507,18 @@ class SignLanguageDataset(Dataset):
             raise FileNotFoundError(f"Missing .npz: {npz_path}")
 
         data = np.load(npz_path)
-
-        # Determine key names
         keys = list(data.keys())
 
-        # Try to find pose sequence
+        # Handle separate keys format (pose, hand_left, hand_right, face)
+        if "pose" in keys:
+            body_pose = data["pose"]
+            left_hand = data.get("hand_left", None)
+            right_hand = data.get("hand_right", None)
+            raw_length = body_pose.shape[0]
+            face = data.get("face", None)
+            return body_pose, left_hand, right_hand, face, raw_length
+
+        # Handle pose_sequence format
         if "pose_sequence" in keys:
             pose_sequence = data["pose_sequence"]
         else:
@@ -518,21 +526,37 @@ class SignLanguageDataset(Dataset):
 
         # Reshape if needed
         if pose_sequence.ndim == 2:
-            # Already flattened: (seq_len, 99) for body only
-            body_flat = pose_sequence
-            body_pose = body_flat.reshape(-1, 33, 3)
-            left_hand = None
-            right_hand = None
+            # Already flattened: (seq_len, dim)
+            if pose_sequence.shape[1] == 99:
+                # Body only: (seq_len, 99) -> (seq_len, 33, 3)
+                body_flat = pose_sequence
+                body_pose = body_flat.reshape(-1, 33, 3)
+                left_hand = None
+                right_hand = None
+            elif pose_sequence.shape[1] == 108:
+                # Body with extra zeros: (seq_len, 108) -> take first 99 cols -> (seq_len, 33, 3)
+                body_flat = pose_sequence[:, :99]
+                body_pose = body_flat.reshape(-1, 33, 3)
+                left_hand = None
+                right_hand = None
+            else:
+                raise ValueError(f"Unexpected flattened shape: {pose_sequence.shape}")
         elif pose_sequence.ndim == 3:
             # Multi-stream data
             if pose_sequence.shape[1] == 33:
                 body_pose = pose_sequence
                 left_hand = None
                 right_hand = None
-            elif pose_sequence.shape[1] == 75:  # body + hands
+            elif pose_sequence.shape[1] == 75:
+                # body + hands
                 body_pose = pose_sequence[:, :33, :]
                 left_hand = pose_sequence[:, 33:54, :]
                 right_hand = pose_sequence[:, 54:75, :]
+            elif pose_sequence.shape[1] == 36:
+                # body + extra (take first 33)
+                body_pose = pose_sequence[:, :33, :]
+                left_hand = None
+                right_hand = None
             else:
                 # Assume body only
                 body_pose = pose_sequence
@@ -542,8 +566,6 @@ class SignLanguageDataset(Dataset):
             raise ValueError(f"Unexpected pose shape: {pose_sequence.shape}")
 
         raw_length = pose_sequence.shape[0]
-
-        # Handle face data (not stored in current format)
         face = None
 
         return body_pose, left_hand, right_hand, face, raw_length

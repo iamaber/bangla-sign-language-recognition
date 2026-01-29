@@ -100,6 +100,10 @@ class Lookahead(Optimizer):
                     param_state = self.optimizer.state[p]
                     param_state["slow_param"] = p.data.clone()
 
+    def __getattr__(self, name):
+        """Delegate attribute access to underlying optimizer."""
+        return getattr(self.optimizer, name)
+
     def step(self, closure=None):
         """Perform optimization step."""
         loss = self.optimizer.step(closure)
@@ -233,10 +237,10 @@ class SignNetTrainer:
         # Move model to device
         self.model = self.model.to(self.device)
 
-        # Mixed precision scaler
+        # Mixed precision scaler (use new API)
         self.scaler = (
-            torch.cuda.amp.GradScaler()
-            if config.use_amp and device.type == "cuda"
+            torch.amp.GradScaler("cuda" if device.type == "cuda" else "cpu")
+            if config.use_amp
             else None
         )
 

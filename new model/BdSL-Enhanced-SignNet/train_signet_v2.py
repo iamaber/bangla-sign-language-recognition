@@ -198,7 +198,7 @@ def main():
         augmentation=True,
     )
 
-    # Create data loaders
+    # Create data loaders (Note: dataset only has body_pose)
     train_loader, val_loader, test_loader = create_data_loaders(
         config=data_config,
         train_samples=train_samples,
@@ -207,8 +207,8 @@ def main():
         word_to_label=word_to_label,
         batch_size=args.batch_size,
         num_workers=2,
-        use_hands=True,
-        use_face=True,
+        use_hands=False,
+        use_face=False,
     )
 
     print(f"\n📦 Data loaders created:")
@@ -240,7 +240,7 @@ def main():
         checkpoint_dir=str(checkpoint_dir),
     )
 
-    # Initialize model
+    # Initialize model (Note: dataset only has body_pose)
     model = SignNetV2(
         num_classes=num_classes,
         body_dim=data_config.body_dim,
@@ -252,8 +252,8 @@ def main():
         d_ff=training_config.d_ff,
         dropout=training_config.dropout,
         max_seq_length=data_config.max_seq_length,
-        use_face=True,
-        use_hands=True,
+        use_face=False,  # Dataset only has body_pose
+        use_hands=False,  # Dataset only has body_pose
     )
 
     # Count parameters
@@ -292,10 +292,20 @@ def main():
         if device.type == "cuda" and args.use_amp:
             with torch.cuda.amp.autocast():
                 test_output = model(
-                    test_input, test_mask, test_mask, test_mask, test_mask
+                    test_input,  # body_pose
+                    None,  # left_hand
+                    None,  # right_hand
+                    None,  # face
+                    test_mask,  # attention_mask
                 )
         else:
-            test_output = model(test_input, test_mask, test_mask, test_mask, test_mask)
+            test_output = model(
+                test_input,  # body_pose
+                None,  # left_hand
+                None,  # right_hand
+                None,  # face
+                test_mask,  # attention_mask
+            )
 
     print(f"   Input shape: {test_input.shape}")
     print(f"   Output shape: {test_output.shape}")
