@@ -1,0 +1,73 @@
+_wandb:
+    value:
+        cli_version: 0.24.0
+        e:
+            nelwhafgg0lx3bttkatxokkze3m6xiqf:
+                args:
+                    - --epochs
+                    - "10"
+                    - --batch_size
+                    - "12"
+                codePath: new model/BdSL-Enhanced-SignNet/train_signet_v2_optimized.py
+                codePathLocal: train_signet_v2_optimized.py
+                cpu_count: 12
+                cpu_count_logical: 24
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "1073038127104"
+                        used: "294070939648"
+                email: aber.islam.dev@gmail.com
+                executable: /home/raco/Repos/bangla-sign-language-recognition/.venv/bin/python
+                git:
+                    commit: d76b27dd1ed6890390ee6d2e59484e100b5efb36
+                    remote: git@github.com:iamaber/bangla-sign-language-recognition.git
+                gpu: NVIDIA GeForce RTX 3090 Ti
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "25757220864"
+                      name: NVIDIA GeForce RTX 3090 Ti
+                      uuid: GPU-91deda27-1cc7-c1f8-f795-49aafdbd368d
+                host: raco-ubuntu
+                memory:
+                    total: "100243939328"
+                os: Linux-6.14.0-37-generic-x86_64-with-glibc2.39
+                program: /home/raco/Repos/bangla-sign-language-recognition/new model/BdSL-Enhanced-SignNet/train_signet_v2_optimized.py
+                python: CPython 3.12.3
+                root: /home/raco/Repos/bangla-sign-language-recognition/new model/BdSL-Enhanced-SignNet
+                startedAt: "2026-01-29T14:34:49.630613Z"
+                writerId: nelwhafgg0lx3bttkatxokkze3m6xiqf
+        m: []
+        python_version: 3.12.3
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 1
+                - 13
+                - 16
+                - 24
+            "4": 3.12.3
+            "5": 0.24.0
+            "12": 0.24.0
+            "13": linux-x86_64
+batch_size:
+    value: 12
+epochs:
+    value: 10
+learning_rate:
+    value: 0.0003
+num_classes:
+    value: 72
+seed:
+    value: 42
+use_amp:
+    value: true

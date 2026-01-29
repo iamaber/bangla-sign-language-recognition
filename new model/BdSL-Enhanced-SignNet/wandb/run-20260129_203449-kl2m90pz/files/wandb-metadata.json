@@ -1,0 +1,46 @@
+{
+  "os": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+  "python": "CPython 3.12.3",
+  "startedAt": "2026-01-29T14:34:49.630613Z",
+  "args": [
+    "--epochs",
+    "10",
+    "--batch_size",
+    "12"
+  ],
+  "program": "/home/raco/Repos/bangla-sign-language-recognition/new model/BdSL-Enhanced-SignNet/train_signet_v2_optimized.py",
+  "codePath": "new model/BdSL-Enhanced-SignNet/train_signet_v2_optimized.py",
+  "codePathLocal": "train_signet_v2_optimized.py",
+  "git": {
+    "remote": "git@github.com:iamaber/bangla-sign-language-recognition.git",
+    "commit": "d76b27dd1ed6890390ee6d2e59484e100b5efb36"
+  },
+  "email": "aber.islam.dev@gmail.com",
+  "root": "/home/raco/Repos/bangla-sign-language-recognition/new model/BdSL-Enhanced-SignNet",
+  "host": "raco-ubuntu",
+  "executable": "/home/raco/Repos/bangla-sign-language-recognition/.venv/bin/python",
+  "cpu_count": 12,
+  "cpu_count_logical": 24,
+  "gpu": "NVIDIA GeForce RTX 3090 Ti",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "1073038127104",
+      "used": "294070939648"
+    }
+  },
+  "memory": {
+    "total": "100243939328"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 3090 Ti",
+      "memoryTotal": "25757220864",
+      "cudaCores": 10752,
+      "architecture": "Ampere",
+      "uuid": "GPU-91deda27-1cc7-c1f8-f795-49aafdbd368d"
+    }
+  ],
+  "cudaVersion": "13.0",
+  "writerId": "nelwhafgg0lx3bttkatxokkze3m6xiqf"
+}
